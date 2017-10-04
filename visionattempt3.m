@@ -19,12 +19,12 @@ Hues = Ahsv(:,:,1);
 %%range Hues into desired color bins
 %%multiply bins with stauration and value masks
 
-%Sats = Ahsv(:,:,2);
+Sats = Ahsv(:,:,2);
 %figure();
 %subplot(2,2,2)
 %dispImage(Sats,'Sats', gray);
 
-%Vals  =Ahsv(:,:,3);
+Vals  =Ahsv(:,:,3);
 %figure();
 %dispImage(Vals,'Vals', gray);
 
@@ -69,9 +69,7 @@ for r = 1:dims(1) %rows
   end
 end
 
-
-%AHuesFilt = AHuesFilt .* satMask;
-
+%sort and bin hues
 redChan = zeros(dims(1), dims(2));
 greenChan = zeros(dims(1), dims(2));
 blueChan = zeros(dims(1), dims(2));
@@ -91,6 +89,7 @@ for r = 1:dims(1)
   end
 end
 
+%apply masks
 redChan = redChan .* satMask .*valMask;
 greenChan = greenChan .* satMask .*valMask;
 blueChan = blueChan .* satMask .*valMask;
@@ -104,7 +103,7 @@ dispImage(blueChan, 'Blue Thresh', autumn);
 %fill in resulting image as needed
 %%regenerative filter?
 %%lowpass and threshhold? %isotropic ? %%needs to fill in rectangles
-%lets try lowpass
+%lets try lowpass %%NOT EFFECTIVE
 % filtersize = 21;
 % lowpassfilter = 1/(filtersize^2) * ones(filtersize,filtersize);
 % edgefilter = [1,1,1;
@@ -129,7 +128,7 @@ dispImage(blueChan, 'Blue Thresh', autumn);
 % dispImage(blueChanFilt, 'Blue Low', autumn);
 
 %median select in order to posturize image a bit, this works much better
-%than the low pass
+%than the low pass %Very Effetive
 medianwindow= [9,9];
 redChanMed = medianselect(redChan, medianwindow(1), medianwindow(2));
 greenChanMed = medianselect(greenChan, medianwindow(1), medianwindow(2));
@@ -187,12 +186,22 @@ reddims = size(redChanFilt2);
 greendims = size(greenChanFilt2);
 bluedims = size(blueChanFilt2);
 
+%median filter here with 3x3
+%this removes extra garbage and reduces number of colors
+redChanFilt2 = medianselect(redChanFilt2,3,3);
+greenChanFilt2 = medianselect(greenChanFilt2,3,3);
+blueChanFilt2 = medianselect(blueChanFilt2,3,3);
+
+redChanFilt3 = medianselect(redChanFilt3,3,3);
+greenChanFilt3 = medianselect(greenChanFilt3,3,3);
+blueChanFilt3 = medianselect(blueChanFilt3,3,3);
+
 %for each square, get best fit line for top bottom left and right
 %find 4 intersection points (T+L, B+L, T+R, B+R)
 %use square parameters to generate transform to unit
 %square/rectangle/whatever
 
-mythresh = 150;
+mythresh = 100;
 [redposycoords,rednegycoords] = duallythresh(redChanFilt2, mythresh);
 [redposxcoords,rednegxcoords] = duallythresh(redChanFilt3, mythresh);
 
@@ -202,59 +211,85 @@ mythresh = 150;
 [greenposycoords,greennegycoords] = duallythresh(greenChanFilt2, mythresh);
 [greenposxcoords,greennegxcoords] = duallythresh(greenChanFilt3, mythresh);
 
-rcoeffs = polyfit(redposycoords(:,2) + RedcB, redposycoords(:,1) + RedrB,1);
-rcoeffs2 = polyfit(rednegycoords(:,2)+ RedcB, rednegycoords(:,1)+ RedrB,1);
-rcoeffs3 = polyfit(redposxcoords(:,2)+ RedcB, redposxcoords(:,1)+ RedrB,1);
-rcoeffs4 = polyfit(rednegxcoords(:,2)+ RedcB, rednegxcoords(:,1)+ RedrB,1);
+%red
+    rcoeffs = polyfit(redposycoords(:,2) + RedcB, redposycoords(:,1) + RedrB,1);
+    rcoeffs2 = polyfit(rednegycoords(:,2)+ RedcB, rednegycoords(:,1)+ RedrB,1);
+    rcoeffs3 = polyfit(redposxcoords(:,2)+ RedcB, redposxcoords(:,1)+ RedrB,1);
+    rcoeffs4 = polyfit(rednegxcoords(:,2)+ RedcB, rednegxcoords(:,1)+ RedrB,1);
 
-%1 and 3 are uppper left
-redUpLeft(1) = (rcoeffs3(2) - rcoeffs(1))/(rcoeffs(1) - rcoeffs3(1));
-redUpLeft(2) = rcoeffs(1) * redUpLeft(1) + rcoeffs(2);
-%1 and 4 are upper right
-redUpRight(1) = (rcoeffs4(2) - rcoeffs(1))/(rcoeffs(1) - rcoeffs4(1));
-redUpRight(2) = rcoeffs(1) * redUpRight(1) + rcoeffs(2);
-%2 and 3 are lower left
-redDownLeft(1) = (rcoeffs3(2) - rcoeffs2(1))/(rcoeffs2(1) - rcoeffs3(1));
-redDownLeft(2) = rcoeffs2(1) * redDownLeft(1) + rcoeffs2(2);
-%2 and 4 are lower right
-redDownRight(1) = (rcoeffs4(2) - rcoeffs2(1))/(rcoeffs2(1) - rcoeffs4(1));
-redDownRight(2) = rcoeffs2(1) * redDownRight(1) + rcoeffs2(2);
+    %1 and 3 are uppper left
+    redUpLeft(1) = (rcoeffs3(2) - rcoeffs(1))/(rcoeffs(1) - rcoeffs3(1));
+    redUpLeft(2) = rcoeffs(1) * redUpLeft(1) + rcoeffs(2);
+    %1 and 4 are upper right
+    redUpRight(1) = (rcoeffs4(2) - rcoeffs(1))/(rcoeffs(1) - rcoeffs4(1));
+    redUpRight(2) = rcoeffs(1) * redUpRight(1) + rcoeffs(2);
+    %2 and 3 are lower left
+    redDownLeft(1) = (rcoeffs3(2) - rcoeffs2(1))/(rcoeffs2(1) - rcoeffs3(1));
+    redDownLeft(2) = rcoeffs2(1) * redDownLeft(1) + rcoeffs2(2);
+    %2 and 4 are lower right
+    redDownRight(1) = (rcoeffs4(2) - rcoeffs2(1))/(rcoeffs2(1) - rcoeffs4(1));
+    redDownRight(2) = rcoeffs2(1) * redDownRight(1) + rcoeffs2(2);
+%
+
+%green
+    gcoeffs = polyfit(greenposycoords(:,2) + GreencB, greenposycoords(:,1) + GreenrB,1);
+    gcoeffs2 = polyfit(greennegycoords(:,2)+ GreencB, greennegycoords(:,1)+ GreenrB,1);
+    gcoeffs3 = polyfit(greenposxcoords(:,2)+ GreencB, greenposxcoords(:,1)+ GreenrB,1);
+    gcoeffs4 = polyfit(greennegxcoords(:,2)+ GreencB, greennegxcoords(:,1)+ GreenrB,1);
+
+    %1 and 3 are uppper left
+    greenUpLeft(1) = (gcoeffs3(2) - gcoeffs(1))/(gcoeffs(1) - gcoeffs3(1));
+    greenUpLeft(2) = gcoeffs(1) * greenUpLeft(1) + gcoeffs(2);
+    %1 and 4 are upper right
+    greenUpRight(1) = (gcoeffs4(2) - gcoeffs(1))/(gcoeffs(1) - gcoeffs4(1));
+    greenUpRight(2) = gcoeffs(1) * greenUpRight(1) + gcoeffs(2);
+    %2 and 3 are lower left
+    greenDownLeft(1) = (gcoeffs3(2) - gcoeffs2(1))/(gcoeffs2(1) - gcoeffs3(1));
+    greenDownLeft(2) = gcoeffs2(1) * greenDownLeft(1) + gcoeffs2(2);
+    %2 and 4 are lower right
+    greenDownRight(1) = (gcoeffs4(2) - gcoeffs2(1))/(gcoeffs2(1) - gcoeffs4(1));
+    greenDownRight(2) = gcoeffs2(1) * greenDownRight(1) + gcoeffs2(2);
+%
+
+%blue
+    rcoeffs = polyfit(blueposycoords(:,2) + BluecB, blueposycoords(:,1) + BluerB,1);
+    rcoeffs2 = polyfit(bluenegycoords(:,2)+ BluecB, bluenegycoords(:,1)+ BluerB,1);
+    rcoeffs3 = polyfit(blueposxcoords(:,2)+ BluecB, blueposxcoords(:,1)+ BluerB,1);
+    rcoeffs4 = polyfit(bluenegxcoords(:,2)+ BluecB, bluenegxcoords(:,1)+ BluerB,1);
+
+    %1 and 3 are uppper left
+    blueUpLeft(1) = (rcoeffs3(2) - rcoeffs(1))/(rcoeffs(1) - rcoeffs3(1));
+    blueUpLeft(2) = rcoeffs(1) * blueUpLeft(1) + rcoeffs(2);
+    %1 and 4 are upper right
+    blueUpRight(1) = (rcoeffs4(2) - rcoeffs(1))/(rcoeffs(1) - rcoeffs4(1));
+    blueUpRight(2) = rcoeffs(1) * blueUpRight(1) + rcoeffs(2);
+    %2 and 3 are lower left
+    blueDownLeft(1) = (rcoeffs3(2) - rcoeffs2(1))/(rcoeffs2(1) - rcoeffs3(1));
+    blueDownLeft(2) = rcoeffs2(1) * blueDownLeft(1) + rcoeffs2(2);
+    %2 and 4 are lower right
+    blueDownRight(1) = (rcoeffs4(2) - rcoeffs2(1))/(rcoeffs2(1) - rcoeffs4(1));
+    blueDownRight(2) = rcoeffs2(1) * blueDownRight(1) + rcoeffs2(2);
+%
 
 figure();
 imshow(A)
 hold on
-plot(redUpLeft(1), redUpLeft(2),'r<')
-plot(redUpRight(1), redUpRight(2),'r^')
-plot(redDownLeft(1), redDownLeft(2),'rv')
-plot(redDownRight(1), redDownRight(2),'r>')
+plot(redUpLeft(1), redUpLeft(2),'r*')
+plot(redUpRight(1), redUpRight(2),'r*')
+plot(redDownLeft(1), redDownLeft(2),'r*')
+plot(redDownRight(1), redDownRight(2),'r*')
+
+plot(greenUpLeft(1), greenUpLeft(2),'g*')
+plot(greenUpRight(1), greenUpRight(2),'g*')
+plot(greenDownLeft(1), greenDownLeft(2),'g*')
+plot(greenDownRight(1), greenDownRight(2),'g*')
+
+plot(blueUpLeft(1), blueUpLeft(2),'b*')
+plot(blueUpRight(1), blueUpRight(2),'b*')
+plot(blueDownLeft(1), blueDownLeft(2),'b*')
+plot(blueDownRight(1), blueDownRight(2),'b*')
 hold off
 
-
-
-%minx = min(redposycoords(:,1)) +RedcB;maxx = max(redposycoords(:,1)) +RedcB;
-%miny = coeffs(1)*minx + coeffs(2)+ RedrB;maxy = coeffs(1)*maxx  +coeffs(2) +RedrB;
-
-%figure()
-%plot([minx, maxx], [-miny, -maxy]);
-%axis([0,dims(1),-dims(2),0]);
-
-
-
-%threshhold them
-%thresher = 1;
-% for u = 1:dims(1)
-%     for v =1:dims(2)
-%         if (redChanFilt2(u,v) < thresher)
-%             redChanFilt2(u,v) =0;
-%         end
-%         if (greenChanFilt2(u,v) < thresher)
-%             greenChanFilt2(u,v) =0;
-%         end
-%         if (blueChanFilt2(u,v) < thresher)
-%             blueChanFilt2(u,v) =0;
-%         end
-%     end
-% end
 figure()
 dispImage(redChanFilt2, 'Red Filt Y', summer);
 figure()
