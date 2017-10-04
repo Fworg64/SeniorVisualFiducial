@@ -14,7 +14,7 @@
 
 figure();
 %A = imread('/home/fworg64/seniorvision/Untitled3.png');
-A = imread('/home/fworg64/seniorvision/banner1.png');
+A = imread('banner1.png');
 subplot(2,2,1);
 Ared = A(:,:,1);
 Agreen = A(:,:,2);
