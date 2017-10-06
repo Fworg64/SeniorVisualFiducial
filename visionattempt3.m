@@ -13,20 +13,20 @@ Ahsv = uint8(255*rgb2hsv(A));
 %show hue channel masked with selection, lightness and darkness mask
 
 Hues = Ahsv(:,:,1);
-%figure();
+figure();
 %subplot(2,2,1)
-%dispImage(Hues,'Hues', Hmap);
+dispImage(Hues,'Hues', Hmap);
 %%range Hues into desired color bins
 %%multiply bins with stauration and value masks
 
 Sats = Ahsv(:,:,2);
-%figure();
+figure();
 %subplot(2,2,2)
-%dispImage(Sats,'Sats', gray);
+dispImage(Sats,'Sats', gray);
 
 Vals  =Ahsv(:,:,3);
-%figure();
-%dispImage(Vals,'Vals', gray);
+figure();
+dispImage(Vals,'Vals', gray);
 
 maxRed = 20; %less than this, red is special
 minRed = 235; %grater than this
@@ -201,6 +201,7 @@ blueChanFilt3 = medianselect(blueChanFilt3,3,3);
 %use square parameters to generate transform to unit
 %square/rectangle/whatever
 
+%sort positive and negative line coordinates
 mythresh = 100;
 [redposycoords,rednegycoords] = duallythresh(redChanFilt2, mythresh);
 [redposxcoords,rednegxcoords] = duallythresh(redChanFilt3, mythresh);
@@ -211,6 +212,7 @@ mythresh = 100;
 [greenposycoords,greennegycoords] = duallythresh(greenChanFilt2, mythresh);
 [greenposxcoords,greennegxcoords] = duallythresh(greenChanFilt3, mythresh);
 
+%solve for each color
 %red
     rcoeffs = polyfit(redposycoords(:,2) + RedcB, redposycoords(:,1) + RedrB,1);
     rcoeffs2 = polyfit(rednegycoords(:,2)+ RedcB, rednegycoords(:,1)+ RedrB,1);
@@ -271,23 +273,24 @@ mythresh = 100;
     blueDownRight(2) = rcoeffs2(1) * blueDownRight(1) + rcoeffs2(2);
 %
 
+%show solved corners
 figure();
 imshow(A)
 hold on
 plot(redUpLeft(1), redUpLeft(2),'r*')
-plot(redUpRight(1), redUpRight(2),'r*')
-plot(redDownLeft(1), redDownLeft(2),'r*')
-plot(redDownRight(1), redDownRight(2),'r*')
+plot(redUpRight(1), redUpRight(2),'ro')
+plot(redDownLeft(1), redDownLeft(2),'r+')
+plot(redDownRight(1), redDownRight(2),'r.')
 
 plot(greenUpLeft(1), greenUpLeft(2),'g*')
-plot(greenUpRight(1), greenUpRight(2),'g*')
-plot(greenDownLeft(1), greenDownLeft(2),'g*')
-plot(greenDownRight(1), greenDownRight(2),'g*')
+plot(greenUpRight(1), greenUpRight(2),'go')
+plot(greenDownLeft(1), greenDownLeft(2),'g+')
+plot(greenDownRight(1), greenDownRight(2),'g.')
 
 plot(blueUpLeft(1), blueUpLeft(2),'b*')
-plot(blueUpRight(1), blueUpRight(2),'b*')
-plot(blueDownLeft(1), blueDownLeft(2),'b*')
-plot(blueDownRight(1), blueDownRight(2),'b*')
+plot(blueUpRight(1), blueUpRight(2),'bo')
+plot(blueDownLeft(1), blueDownLeft(2),'b+')
+plot(blueDownRight(1), blueDownRight(2),'b.')
 hold off
 
 figure()
@@ -302,10 +305,28 @@ figure()
 dispImage(greenChanFilt3, 'Green Filt X', winter);
 figure()
 dispImage(blueChanFilt3, 'Blue Filt X', autumn);
+%get confidance measure of best fit line being in the tag
+%? see how self consistant the points are with the others? (are the green
+%corners near the red and blue corners?)
 
-%find corners of tag
+
 
 %form tag transform matrix
+%do this from the located corners and information from the tag. Use
+%parameters about the tag like width and length and find the transform that
+%converts coordinates on the tag to coordinates in the (camera or world)
+
+%tag width = 27.7cm
+%red height = 11.5cm
+%blue height = 10cm
+%green height = 21.5cm
+
+%strategy, get transform for each color individually
+%other strategy, combine all confidant points (how?)
+
+
+
+
 
 %form camera transform matrix
 

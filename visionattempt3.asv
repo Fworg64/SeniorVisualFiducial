@@ -13,20 +13,20 @@ Ahsv = uint8(255*rgb2hsv(A));
 %show hue channel masked with selection, lightness and darkness mask
 
 Hues = Ahsv(:,:,1);
-%figure();
+figure();
 %subplot(2,2,1)
-%dispImage(Hues,'Hues', Hmap);
+dispImage(Hues,'Hues', Hmap);
 %%range Hues into desired color bins
 %%multiply bins with stauration and value masks
 
 Sats = Ahsv(:,:,2);
-%figure();
+figure();
 %subplot(2,2,2)
-%dispImage(Sats,'Sats', gray);
+dispImage(Sats,'Sats', gray);
 
 Vals  =Ahsv(:,:,3);
-%figure();
-%dispImage(Vals,'Vals', gray);
+figure();
+dispImage(Vals,'Vals', gray);
 
 maxRed = 20; %less than this, red is special
 minRed = 235; %grater than this
@@ -69,9 +69,7 @@ for r = 1:dims(1) %rows
   end
 end
 
-
-%AHuesFilt = AHuesFilt .* satMask;
-
+%sort and bin hues
 redChan = zeros(dims(1), dims(2));
 greenChan = zeros(dims(1), dims(2));
 blueChan = zeros(dims(1), dims(2));
@@ -91,6 +89,7 @@ for r = 1:dims(1)
   end
 end
 
+%apply masks
 redChan = redChan .* satMask .*valMask;
 greenChan = greenChan .* satMask .*valMask;
 blueChan = blueChan .* satMask .*valMask;
@@ -104,7 +103,7 @@ dispImage(blueChan, 'Blue Thresh', autumn);
 %fill in resulting image as needed
 %%regenerative filter?
 %%lowpass and threshhold? %isotropic ? %%needs to fill in rectangles
-%lets try lowpass
+%lets try lowpass %%NOT EFFECTIVE
 % filtersize = 21;
 % lowpassfilter = 1/(filtersize^2) * ones(filtersize,filtersize);
 % edgefilter = [1,1,1;
@@ -129,7 +128,7 @@ dispImage(blueChan, 'Blue Thresh', autumn);
 % dispImage(blueChanFilt, 'Blue Low', autumn);
 
 %median select in order to posturize image a bit, this works much better
-%than the low pass
+%than the low pass %Very Effetive
 medianwindow= [9,9];
 redChanMed = medianselect(redChan, medianwindow(1), medianwindow(2));
 greenChanMed = medianselect(greenChan, medianwindow(1), medianwindow(2));
@@ -188,6 +187,7 @@ greendims = size(greenChanFilt2);
 bluedims = size(blueChanFilt2);
 
 %median filter here with 3x3
+%this removes extra garbage and reduces number of colors
 redChanFilt2 = medianselect(redChanFilt2,3,3);
 greenChanFilt2 = medianselect(greenChanFilt2,3,3);
 blueChanFilt2 = medianselect(blueChanFilt2,3,3);
@@ -201,7 +201,8 @@ blueChanFilt3 = medianselect(blueChanFilt3,3,3);
 %use square parameters to generate transform to unit
 %square/rectangle/whatever
 
-mythresh = 150;
+%sort positive and negative line coordinates
+mythresh = 100;
 [redposycoords,rednegycoords] = duallythresh(redChanFilt2, mythresh);
 [redposxcoords,rednegxcoords] = duallythresh(redChanFilt3, mythresh);
 
@@ -211,6 +212,7 @@ mythresh = 150;
 [greenposycoords,greennegycoords] = duallythresh(greenChanFilt2, mythresh);
 [greenposxcoords,greennegxcoords] = duallythresh(greenChanFilt3, mythresh);
 
+%solve for each color
 %red
     rcoeffs = polyfit(redposycoords(:,2) + RedcB, redposycoords(:,1) + RedrB,1);
     rcoeffs2 = polyfit(rednegycoords(:,2)+ RedcB, rednegycoords(:,1)+ RedrB,1);
@@ -253,59 +255,44 @@ mythresh = 150;
 
 %blue
     rcoeffs = polyfit(blueposycoords(:,2) + BluecB, blueposycoords(:,1) + BluerB,1);
-    rcoeffs2 = polyfit(bluenegycoords(:,2)+ BluecB, rednegycoords(:,1)+ BluerB,1);
-    rcoeffs3 = polyfit(redposxcoords(:,2)+ BluecB, redposxcoords(:,1)+ BluerB,1);
-    rcoeffs4 = polyfit(rednegxcoords(:,2)+ BluecB, rednegxcoords(:,1)+ BluerB,1);
+    rcoeffs2 = polyfit(bluenegycoords(:,2)+ BluecB, bluenegycoords(:,1)+ BluerB,1);
+    rcoeffs3 = polyfit(blueposxcoords(:,2)+ BluecB, blueposxcoords(:,1)+ BluerB,1);
+    rcoeffs4 = polyfit(bluenegxcoords(:,2)+ BluecB, bluenegxcoords(:,1)+ BluerB,1);
 
     %1 and 3 are uppper left
-    redUpLeft(1) = (rcoeffs3(2) - rcoeffs(1))/(rcoeffs(1) - rcoeffs3(1));
-    redUpLeft(2) = rcoeffs(1) * redUpLeft(1) + rcoeffs(2);
+    blueUpLeft(1) = (rcoeffs3(2) - rcoeffs(1))/(rcoeffs(1) - rcoeffs3(1));
+    blueUpLeft(2) = rcoeffs(1) * blueUpLeft(1) + rcoeffs(2);
     %1 and 4 are upper right
-    redUpRight(1) = (rcoeffs4(2) - rcoeffs(1))/(rcoeffs(1) - rcoeffs4(1));
-    redUpRight(2) = rcoeffs(1) * redUpRight(1) + rcoeffs(2);
+    blueUpRight(1) = (rcoeffs4(2) - rcoeffs(1))/(rcoeffs(1) - rcoeffs4(1));
+    blueUpRight(2) = rcoeffs(1) * blueUpRight(1) + rcoeffs(2);
     %2 and 3 are lower left
-    redDownLeft(1) = (rcoeffs3(2) - rcoeffs2(1))/(rcoeffs2(1) - rcoeffs3(1));
-    redDownLeft(2) = rcoeffs2(1) * redDownLeft(1) + rcoeffs2(2);
+    blueDownLeft(1) = (rcoeffs3(2) - rcoeffs2(1))/(rcoeffs2(1) - rcoeffs3(1));
+    blueDownLeft(2) = rcoeffs2(1) * blueDownLeft(1) + rcoeffs2(2);
     %2 and 4 are lower right
-    redDownRight(1) = (rcoeffs4(2) - rcoeffs2(1))/(rcoeffs2(1) - rcoeffs4(1));
-    redDownRight(2) = rcoeffs2(1) * redDownRight(1) + rcoeffs2(2);
+    blueDownRight(1) = (rcoeffs4(2) - rcoeffs2(1))/(rcoeffs2(1) - rcoeffs4(1));
+    blueDownRight(2) = rcoeffs2(1) * blueDownRight(1) + rcoeffs2(2);
 %
 
+%show solved corners
 figure();
 imshow(A)
 hold on
 plot(redUpLeft(1), redUpLeft(2),'r*')
-plot(redUpRight(1), redUpRight(2),'r*')
-plot(redDownLeft(1), redDownLeft(2),'r*')
-plot(redDownRight(1), redDownRight(2),'r*')
+plot(redUpRight(1), redUpRight(2),'ro')
+plot(redDownLeft(1), redDownLeft(2),'r+')
+plot(redDownRight(1), redDownRight(2),'r.')
+
+plot(greenUpLeft(1), greenUpLeft(2),'g*')
+plot(greenUpRight(1), greenUpRight(2),'go')
+plot(greenDownLeft(1), greenDownLeft(2),'g+')
+plot(greenDownRight(1), greenDownRight(2),'g.')
+
+plot(blueUpLeft(1), blueUpLeft(2),'b*')
+plot(blueUpRight(1), blueUpRight(2),'bo')
+plot(blueDownLeft(1), blueDownLeft(2),'b+')
+plot(blueDownRight(1), blueDownRight(2),'b.')
 hold off
 
-
-
-%minx = min(redposycoords(:,1)) +RedcB;maxx = max(redposycoords(:,1)) +RedcB;
-%miny = coeffs(1)*minx + coeffs(2)+ RedrB;maxy = coeffs(1)*maxx  +coeffs(2) +RedrB;
-
-%figure()
-%plot([minx, maxx], [-miny, -maxy]);
-%axis([0,dims(1),-dims(2),0]);
-
-
-
-%threshhold them
-%thresher = 1;
-% for u = 1:dims(1)
-%     for v =1:dims(2)
-%         if (redChanFilt2(u,v) < thresher)
-%             redChanFilt2(u,v) =0;
-%         end
-%         if (greenChanFilt2(u,v) < thresher)
-%             greenChanFilt2(u,v) =0;
-%         end
-%         if (blueChanFilt2(u,v) < thresher)
-%             blueChanFilt2(u,v) =0;
-%         end
-%     end
-% end
 figure()
 dispImage(redChanFilt2, 'Red Filt Y', summer);
 figure()
@@ -318,10 +305,24 @@ figure()
 dispImage(greenChanFilt3, 'Green Filt X', winter);
 figure()
 dispImage(blueChanFilt3, 'Blue Filt X', autumn);
+%get confidance measure of best fit line being in the tag
+%? see how self consistant the points are with the others? (are the green
+%corners near the red and blue corners?)
 
-%find corners of tag
+
 
 %form tag transform matrix
+%do this from the located corners and information from the tag. Use
+%parameters about the tag like width and length and find the transform that
+%converts coordinates on the tag to coordinates in the (camera or world)
+
+%tag width = 27.7cm
+%red height = 11.5cm
+%blue height = 10cm
+%green height = 21.5cm
+
+
+
 
 %form camera transform matrix
 
