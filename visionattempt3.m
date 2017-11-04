@@ -12,22 +12,24 @@ Ahsv = uint8(255*rgb2hsv(A));
 %perfrom HSV selection
 %show hue channel masked with selection, lightness and darkness mask
 
-Hues = Ahsv(:,:,1);
+Hues = Ahsv(:,:,1); %what color is it?
 figure();
 %subplot(2,2,1)
 dispImage(Hues,'Hues', Hmap);
 %%range Hues into desired color bins
 %%multiply bins with stauration and value masks
 
-Sats = Ahsv(:,:,2);
+Sats = Ahsv(:,:,2); %how deep is the color?
 figure();
 %subplot(2,2,2)
 dispImage(Sats,'Sats', gray);
+%if value is too low, the Hue information is garbage
 
-Vals  =Ahsv(:,:,3);
+Vals  =Ahsv(:,:,3); %how bright is the color?
 figure();
 dispImage(Vals,'Vals', gray);
 
+%Hue values on a scale 0 to 255
 maxRed = 20; %less than this, red is special
 minRed = 235; %grater than this
 maxGreen = 130;
@@ -39,7 +41,7 @@ minBlue = 130;
 %%looks like these sheets of construction paper are very saturated, lets go for 245 and up
 minSat = 200;
 
-%and min value, how 'not dark?' it is
+%and min value, how light it is
 %%need to have a minimum value, or else the hue and saturation value are garbage
 minVal = 30;
 
@@ -311,18 +313,71 @@ dispImage(blueChanFilt3, 'Blue Filt X', autumn);
 
 
 
-%form tag transform matrix
+%form camera in tag coordinates transform matrix
 %do this from the located corners and information from the tag. Use
 %parameters about the tag like width and length and find the transform that
 %converts coordinates on the tag to coordinates in the (camera or world)
 
-%tag width = 27.7cm
-%red height = 11.5cm
-%blue height = 10cm
-%green height = 21.5cm
+tagwidth = .277;
+redheight = .115;
+blueheight = .10;
+greenheight = .215;
+
+
+%corresponding points in tag coordinates in (x,y,z)
+%tag center is 0,0;
+%if you are the tag, facing outward, 
+%positive x is out away from the tag, positive y is to the left
+%positive z is up
+tagRedUpLeft = [0,-tagwidth/2, greenheight/2 + redheight];
+tagRedUpRight = [0, tagwidth/2, greenheight/2 + redheight];
+tagRedDownRight = [0,tagwidth/2, greenheight/2];
+tagRedDownLeft = [0,-tagwidth/2, greenheight/2];
+tagBlueUpLeft = [0, -tagwidth/2, -greenheight/2];
+tagBlueUpRight = [0, tagwidth/2, -greenheight/2];
+tagBlueDownRight = [0, tagwidth/2, -greenheight/2 - blueheight];
+tagBlueDownLeft = [0, -tagwidth/2, -greenheight/2 - blueheight];
+tagGreenUpLeft = [0, -tagwidth/2, greenheight/2];
+tagGreenUpRight = [0, tagwidth/2, greenheight/2];
+tagGreenDownRight = [0, tagwidth/2, -greenheight/2];
+tagGreenDownLeft = [0, -tagwidth/2, -greenheight/2];
 
 %strategy, get transform for each color individually
 %other strategy, combine all confidant points (how?)
+
+%lets pick the red and blue points manually for now
+%also estimate camera parameters to be ideal
+fx=1;fy=1;px=0;py=1;
+%cameraMatrix = [fx, 0, px;
+%                 0, fy, py;
+%                 0, 0, 1];
+cameraMatrix = [fx, 0, 0;
+                0, fy, 0;
+                px, py, 1];
+%camParam = cameraParameters('IntrinsicMatrix', cameraMatrix);
+camParam = cameraIntrinsics([729,729],[320,240],[480,640]);
+%these are in r,c
+inputImagePoints = [redUpLeft;
+                    redUpRight;
+                    redDownRight;
+                    redDownLeft;
+                    blueUpLeft;
+                    blueUpRight;
+                    blueDownRight;
+                    blueDownLeft];
+
+inputWorldPoints = [tagRedUpLeft;
+                    tagRedUpRight;
+                    tagRedDownRight;
+                    tagRedDownLeft;
+                    tagBlueUpLeft;
+                    tagBlueUpRight;
+                    tagBlueDownRight;
+                    tagBlueDownLeft];
+
+
+%this should do it, but I don't have this in 2015b grrr...
+[worldOrientation,worldLocation] = estimateWorldCameraPose(inputImagePoints,inputWorldPoints,camParam)
 
 
 
