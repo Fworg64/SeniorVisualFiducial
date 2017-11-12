@@ -9,15 +9,18 @@ def getrgbtrip (inputbyte):
   return (r,g,b)
 
 
-def packhsv (h,s,v):
+def packhsv (hsv_trip):
+  h = hsv_trip[0]
+  s = hsv_trip[1]
+  v = hsv_trip[2]
   h = (h & 0x00FF) << 8 
   s = (s & 0x000F) << 4
   v = (v & 0x000F)
   return(h | s | v)
 
 
-def rgb2hsv(r, g, b):
-  r, g, b = r/31.0, g/63.0, b/31.0
+def rgb2hsv(rgb_trip):
+  r, g, b = rgb_trip[0]/31.0, rgb_trip[1]/63.0, rgb_trip[2]/31.0
   mx = max(r, g, b)
   mn = min(r, g, b)
   df = mx-mn
@@ -48,6 +51,27 @@ def check_code (r,g,b):
   print ('g equals ' + g)
   print ('b equals ' + b)
 
+def print_list_to_lookup (file_ref,lookup, name):
+  lookup_size = len(lookup)
+  size_const_name = name.upper() + '_SIZE'
+  size_def_str = '#define ' + size_const_name + ' ' + str(lookup_size)
+  headerfile.write('\n \n \n')
+  headerfile.write(size_def_str + ' \n')
+  headerfile.write('\n \n \n')
+  headerfile.write('unsigned int hsv_val[' + size_const_name + '] = { \n')
+
+  for x in range(lookup_size):
+    headerfile.write(str(lookup[x]))
+    if (x != (lookup_size-1)):
+      headerfile.write(',')
+    else:
+      headerfile.write('} + \n')
+    if (((x % 16)==0) and x != 0):
+      headerfile.write('\n')
+
+ 
+
+
 
 #arguments are min saturation, min_value, red_min, red_max, green_min, green_max, blue_min, blue_max
 minRed = 350
@@ -67,30 +91,17 @@ header_guard_end = '#endif'
 
 path_to_file = os.path.dirname(os.path.abspath(__file__))
 path_to_include = path_to_file + '/../include/'
-#print(path_to_include)
 
 headerfile = open (path_to_include+file_name, 'w')
 headerfile.write (header_guard_start)
 
-l_val = [x for x in range(65536)]
+rgb_trips = [getrgbtrip(x) for x in range(65536)]
+hsv_trips = [rgb2hsv(x) for x in rgb_trips]
+hsv_packed = [packhsv(x) for x in hsv_trips]
 
 
-headerfile.write('#define HSV_VAL_SIZE 65536 \n')
+print_list_to_lookup (headerfile, hsv_packed, 'hsv_lookup')
 
-headerfile.write('unsigned int hsv_val[HSV_VAL_SIZE] = { \n')
-
-#print (len(l_val))
-for x in range(0,len(l_val)):
-  r,g,b = getrgbtrip(x)
-  h,s,v = rgb2hsv (r,g,b)
-  bytepacked=packhsv (h,s,v)
-  headerfile.write(str(bytepacked))
-  if (x != (len(l_val)-1)):
-    headerfile.write(',')
-  else:
-    headerfile.write('} + \n')
-  if ((x % 16)==0):
-    headerfile.write('\n')
 
 headerfile.write(header_guard_end)
 headerfile.close ()
