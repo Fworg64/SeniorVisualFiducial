@@ -13,6 +13,8 @@ function [pointx, pointy, pointTheta] = parsePoints(points)
    newXindex =1;
    newYindex =1;
    tol = 1.2;
+   newX =0;
+   newY=0;
    for k = 1:length(points)
        if (points(k,1) > meanY - tol*stdY && points(k,1) <meanY + tol*stdY)
            newY(newYindex) = points(k,1);
@@ -24,10 +26,10 @@ function [pointx, pointy, pointTheta] = parsePoints(points)
        end
    end
    %take mean of top half of data and mean of bottom half of data
-   meanYtopHalf = mean(newY(1:floor(length(newY)/2)-1));
-   meanYbotHalf = mean(newY(floor(length(newY)/2):length(newY)));
-   meanXtopHalf = mean(newX(1:floor(length(newX)/2)-1));
-   meanXbotHalf = mean(newX(floor(length(newX)/2):length(newX)));
+   meanYtopHalf = mean(newY(1:max(floor(length(newY)/2)-1,1)));
+   meanYbotHalf = mean(newY(max(floor(length(newY)/2),1):length(newY)));
+   meanXtopHalf = mean(newX(1:max(floor(length(newX)/2)-1,1)));
+   meanXbotHalf = mean(newX(max(floor(length(newX)/2),1):length(newX)));
    %get angle from these
    pointTheta = atan2(meanYtopHalf - meanYbotHalf,meanXtopHalf-meanXbotHalf);
    pointx = (meanXtopHalf + meanXbotHalf)/2;

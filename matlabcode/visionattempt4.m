@@ -6,6 +6,7 @@
 %chanells mask
 %load image
 A = imread('testimages\rawdiffR165.jpg');
+%results
 dims = size(A);
 Hmap = huesmap();
 Ahsv = uint8(255*rgb2hsv(A));
@@ -166,7 +167,21 @@ hold off;
 
 %find intersection of best fit lines to find points on tag
 
-[redUpLeft(1),redUpLeft(2)] = cornerPoints(redposxX + RedcB, redposxY + RedrB, redposxT, redposyX+ RedcB,redposyY + RedrB,redposyT)
+[redUpLeft(1),redUpLeft(2)] = myCornerPoints(redposxX + RedcB, redposxY + RedrB, redposxT, redposyX+ RedcB,redposyY + RedrB,redposyT)
+[redUpRight(1),redUpRight(2)] = myCornerPoints(rednegxX + RedcB, rednegxY + RedrB, rednegxT, redposyX+ RedcB,redposyY + RedrB,redposyT)
+[redDownLeft(1),redDownLeft(2)] = myCornerPoints(redposxX + RedcB, redposxY + RedrB, redposxT, rednegyX+ RedcB,rednegyY + RedrB,rednegyT)
+[redDownRight(1),redDownRight(2)] = myCornerPoints(rednegxX + RedcB, rednegxY + RedrB, rednegxT, rednegyX+ RedcB,rednegyY + RedrB,rednegyT)
+
+[greenUpLeft(1),greenUpLeft(2)] = myCornerPoints(greenposxX + GreencB, greenposxY + GreenrB, greenposxT, greenposyX+ GreencB,greenposyY + GreenrB,greenposyT)
+[greenUpRight(1),greenUpRight(2)] = myCornerPoints(greennegxX + GreencB, greennegxY + GreenrB, greennegxT, greenposyX+ GreencB,greenposyY + GreenrB,greenposyT)
+[greenDownLeft(1),greenDownLeft(2)] = myCornerPoints(greenposxX + GreencB, greenposxY + GreenrB, greenposxT, greennegyX+ GreencB,greennegyY + GreenrB,greennegyT)
+[greenDownRight(1),greenDownRight(2)] = myCornerPoints(greennegxX + GreencB, greennegxY + GreenrB, greennegxT, greennegyX+ GreencB,greennegyY + GreenrB,greennegyT)
+
+[blueUpLeft(1),blueUpLeft(2)] = myCornerPoints(blueposxX + BluecB, blueposxY + BluerB, blueposxT, blueposyX+ BluecB,blueposyY + BluerB,blueposyT)
+[blueUpRight(1),blueUpRight(2)] = myCornerPoints(bluenegxX + BluecB, bluenegxY + BluerB, bluenegxT, blueposyX+ BluecB,blueposyY + BluerB,blueposyT)
+[blueDownLeft(1),blueDownLeft(2)] = myCornerPoints(blueposxX + BluecB, blueposxY + BluerB, blueposxT, bluenegyX+ BluecB,bluenegyY + BluerB,bluenegyT)
+[blueDownRight(1),blueDownRight(2)] = myCornerPoints(bluenegxX + BluecB, bluenegxY + BluerB, bluenegxT, bluenegyX+ BluecB,bluenegyY + BluerB,bluenegyT)
+
 
 %solve for each color
 %red
@@ -179,14 +194,14 @@ hold off;
     %redUpLeft(1) = (rcoeffs3(2) - rcoeffs(1))/(rcoeffs(1) - rcoeffs3(1));
     %redUpLeft(2) = rcoeffs(1) * redUpLeft(1) + rcoeffs(2);
     %1 and 4 are upper right
-    redUpRight(1) = (rcoeffs4(2) - rcoeffs(1))/(rcoeffs(1) - rcoeffs4(1));
-    redUpRight(2) = rcoeffs(1) * redUpRight(1) + rcoeffs(2);
+    %redUpRight(1) = (rcoeffs4(2) - rcoeffs(1))/(rcoeffs(1) - rcoeffs4(1));
+    %redUpRight(2) = rcoeffs(1) * redUpRight(1) + rcoeffs(2);
     %2 and 3 are lower left
-    redDownLeft(1) = (rcoeffs3(2) - rcoeffs2(1))/(rcoeffs2(1) - rcoeffs3(1));
-    redDownLeft(2) = rcoeffs2(1) * redDownLeft(1) + rcoeffs2(2);
+    %redDownLeft(1) = (rcoeffs3(2) - rcoeffs2(1))/(rcoeffs2(1) - rcoeffs3(1));
+    %redDownLeft(2) = rcoeffs2(1) * redDownLeft(1) + rcoeffs2(2);
     %2 and 4 are lower right
-    redDownRight(1) = (rcoeffs4(2) - rcoeffs2(1))/(rcoeffs2(1) - rcoeffs4(1));
-    redDownRight(2) = rcoeffs2(1) * redDownRight(1) + rcoeffs2(2);
+    %redDownRight(1) = (rcoeffs4(2) - rcoeffs2(1))/(rcoeffs2(1) - rcoeffs4(1));
+    %redDownRight(2) = rcoeffs2(1) * redDownRight(1) + rcoeffs2(2);
 %
 
 %green
@@ -196,17 +211,17 @@ hold off;
     gcoeffs4 = polyfit(greennegxcoords(:,2)+ GreencB, greennegxcoords(:,1)+ GreenrB,1);
 
     %1 and 3 are uppper left
-    greenUpLeft(1) = (gcoeffs3(2) - gcoeffs(1))/(gcoeffs(1) - gcoeffs3(1));
-    greenUpLeft(2) = gcoeffs(1) * greenUpLeft(1) + gcoeffs(2);
+    %greenUpLeft(1) = (gcoeffs3(2) - gcoeffs(1))/(gcoeffs(1) - gcoeffs3(1));
+    %greenUpLeft(2) = gcoeffs(1) * greenUpLeft(1) + gcoeffs(2);
     %1 and 4 are upper right
-    greenUpRight(1) = (gcoeffs4(2) - gcoeffs(1))/(gcoeffs(1) - gcoeffs4(1));
-    greenUpRight(2) = gcoeffs(1) * greenUpRight(1) + gcoeffs(2);
+    %greenUpRight(1) = (gcoeffs4(2) - gcoeffs(1))/(gcoeffs(1) - gcoeffs4(1));
+    %greenUpRight(2) = gcoeffs(1) * greenUpRight(1) + gcoeffs(2);
     %2 and 3 are lower left
-    greenDownLeft(1) = (gcoeffs3(2) - gcoeffs2(1))/(gcoeffs2(1) - gcoeffs3(1));
-    greenDownLeft(2) = gcoeffs2(1) * greenDownLeft(1) + gcoeffs2(2);
+    %greenDownLeft(1) = (gcoeffs3(2) - gcoeffs2(1))/(gcoeffs2(1) - gcoeffs3(1));
+    %greenDownLeft(2) = gcoeffs2(1) * greenDownLeft(1) + gcoeffs2(2);
     %2 and 4 are lower right
-    greenDownRight(1) = (gcoeffs4(2) - gcoeffs2(1))/(gcoeffs2(1) - gcoeffs4(1));
-    greenDownRight(2) = gcoeffs2(1) * greenDownRight(1) + gcoeffs2(2);
+    %greenDownRight(1) = (gcoeffs4(2) - gcoeffs2(1))/(gcoeffs2(1) - gcoeffs4(1));
+    %greenDownRight(2) = gcoeffs2(1) * greenDownRight(1) + gcoeffs2(2);
 %
 
 %blue
@@ -216,17 +231,17 @@ hold off;
     bcoeffs4 = polyfit(bluenegxcoords(:,2)+ BluecB, bluenegxcoords(:,1)+ BluerB,1);
 
     %1 and 3 are uppper left
-    blueUpLeft(1) = (bcoeffs3(2) - bcoeffs(1))/(bcoeffs(1) - bcoeffs3(1));
-    blueUpLeft(2) = bcoeffs(1) * blueUpLeft(1) + bcoeffs(2);
+    %blueUpLeft(1) = (bcoeffs3(2) - bcoeffs(1))/(bcoeffs(1) - bcoeffs3(1));
+    %blueUpLeft(2) = bcoeffs(1) * blueUpLeft(1) + bcoeffs(2);
     %1 and 4 are upper right
-    blueUpRight(1) = (bcoeffs4(2) - bcoeffs(1))/(bcoeffs(1) - bcoeffs4(1));
-    blueUpRight(2) = bcoeffs(1) * blueUpRight(1) + bcoeffs(2);
+    %blueUpRight(1) = (bcoeffs4(2) - bcoeffs(1))/(bcoeffs(1) - bcoeffs4(1));
+    %blueUpRight(2) = bcoeffs(1) * blueUpRight(1) + bcoeffs(2);
     %2 and 3 are lower left
-    blueDownLeft(1) = (bcoeffs3(2) - bcoeffs2(1))/(bcoeffs2(1) - bcoeffs3(1));
-    blueDownLeft(2) = bcoeffs2(1) * blueDownLeft(1) + bcoeffs2(2);
+    %blueDownLeft(1) = (bcoeffs3(2) - bcoeffs2(1))/(bcoeffs2(1) - bcoeffs3(1));
+    %blueDownLeft(2) = bcoeffs2(1) * blueDownLeft(1) + bcoeffs2(2);
     %2 and 4 are lower right
-    blueDownRight(1) = (bcoeffs4(2) - bcoeffs2(1))/(bcoeffs2(1) - bcoeffs4(1));
-    blueDownRight(2) = bcoeffs2(1) * blueDownRight(1) + bcoeffs2(2);
+    %blueDownRight(1) = (bcoeffs4(2) - bcoeffs2(1))/(bcoeffs2(1) - bcoeffs4(1));
+    %blueDownRight(2) = bcoeffs2(1) * blueDownRight(1) + bcoeffs2(2);
 %
 
 %solve points on tag in camera coords against tag points in 
