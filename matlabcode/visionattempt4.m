@@ -5,8 +5,23 @@
 %Red green and blue
 %chanells mask
 %load image
-A = imread('testimages\rawdiffR165.jpg');
+A = imread('testimages\rawdiffR887.jpg');
 %results
+%165 good with red and blue only
+%403 good with red and blue only
+%405 good with red and blue only
+%406 good with red and blue only
+%471 good with red and blue only
+%473 good with red and blue only
+%528 good with red and blue only
+%529 good with red and blue only
+%530 good with red and blue only
+%754 BACKPACK INTERFERES
+
+%842 blue has a strange issue, the bottom y line does not work
+%887 red and blue corners incorrect on left side
+%rest will have backpack issues
+
 dims = size(A);
 Hmap = huesmap();
 Ahsv = uint8(255*rgb2hsv(A));
@@ -167,20 +182,20 @@ hold off;
 
 %find intersection of best fit lines to find points on tag
 
-[redUpLeft(1),redUpLeft(2)] = myCornerPoints(redposxX + RedcB, redposxY + RedrB, redposxT, redposyX+ RedcB,redposyY + RedrB,redposyT)
-[redUpRight(1),redUpRight(2)] = myCornerPoints(rednegxX + RedcB, rednegxY + RedrB, rednegxT, redposyX+ RedcB,redposyY + RedrB,redposyT)
-[redDownLeft(1),redDownLeft(2)] = myCornerPoints(redposxX + RedcB, redposxY + RedrB, redposxT, rednegyX+ RedcB,rednegyY + RedrB,rednegyT)
-[redDownRight(1),redDownRight(2)] = myCornerPoints(rednegxX + RedcB, rednegxY + RedrB, rednegxT, rednegyX+ RedcB,rednegyY + RedrB,rednegyT)
+[redUpLeft(1),redUpLeft(2)] = myCornerPoints(redposxX + RedcB, redposxY + RedrB, redposxT, redposyX+ RedcB,redposyY + RedrB,redposyT);
+[redUpRight(1),redUpRight(2)] = myCornerPoints(rednegxX + RedcB, rednegxY + RedrB, rednegxT, redposyX+ RedcB,redposyY + RedrB,redposyT);
+[redDownLeft(1),redDownLeft(2)] = myCornerPoints(redposxX + RedcB, redposxY + RedrB, redposxT, rednegyX+ RedcB,rednegyY + RedrB,rednegyT);
+[redDownRight(1),redDownRight(2)] = myCornerPoints(rednegxX + RedcB, rednegxY + RedrB, rednegxT, rednegyX+ RedcB,rednegyY + RedrB,rednegyT);
 
-[greenUpLeft(1),greenUpLeft(2)] = myCornerPoints(greenposxX + GreencB, greenposxY + GreenrB, greenposxT, greenposyX+ GreencB,greenposyY + GreenrB,greenposyT)
-[greenUpRight(1),greenUpRight(2)] = myCornerPoints(greennegxX + GreencB, greennegxY + GreenrB, greennegxT, greenposyX+ GreencB,greenposyY + GreenrB,greenposyT)
-[greenDownLeft(1),greenDownLeft(2)] = myCornerPoints(greenposxX + GreencB, greenposxY + GreenrB, greenposxT, greennegyX+ GreencB,greennegyY + GreenrB,greennegyT)
-[greenDownRight(1),greenDownRight(2)] = myCornerPoints(greennegxX + GreencB, greennegxY + GreenrB, greennegxT, greennegyX+ GreencB,greennegyY + GreenrB,greennegyT)
+[greenUpLeft(1),greenUpLeft(2)] = myCornerPoints(greenposxX + GreencB, greenposxY + GreenrB, greenposxT, greenposyX+ GreencB,greenposyY + GreenrB,greenposyT);
+[greenUpRight(1),greenUpRight(2)] = myCornerPoints(greennegxX + GreencB, greennegxY + GreenrB, greennegxT, greenposyX+ GreencB,greenposyY + GreenrB,greenposyT);
+[greenDownLeft(1),greenDownLeft(2)] = myCornerPoints(greenposxX + GreencB, greenposxY + GreenrB, greenposxT, greennegyX+ GreencB,greennegyY + GreenrB,greennegyT);
+[greenDownRight(1),greenDownRight(2)] = myCornerPoints(greennegxX + GreencB, greennegxY + GreenrB, greennegxT, greennegyX+ GreencB,greennegyY + GreenrB,greennegyT);
 
-[blueUpLeft(1),blueUpLeft(2)] = myCornerPoints(blueposxX + BluecB, blueposxY + BluerB, blueposxT, blueposyX+ BluecB,blueposyY + BluerB,blueposyT)
-[blueUpRight(1),blueUpRight(2)] = myCornerPoints(bluenegxX + BluecB, bluenegxY + BluerB, bluenegxT, blueposyX+ BluecB,blueposyY + BluerB,blueposyT)
-[blueDownLeft(1),blueDownLeft(2)] = myCornerPoints(blueposxX + BluecB, blueposxY + BluerB, blueposxT, bluenegyX+ BluecB,bluenegyY + BluerB,bluenegyT)
-[blueDownRight(1),blueDownRight(2)] = myCornerPoints(bluenegxX + BluecB, bluenegxY + BluerB, bluenegxT, bluenegyX+ BluecB,bluenegyY + BluerB,bluenegyT)
+[blueUpLeft(1),blueUpLeft(2)] = myCornerPoints(blueposxX + BluecB, blueposxY + BluerB, blueposxT, blueposyX+ BluecB,blueposyY + BluerB,blueposyT);
+[blueUpRight(1),blueUpRight(2)] = myCornerPoints(bluenegxX + BluecB, bluenegxY + BluerB, bluenegxT, blueposyX+ BluecB,blueposyY + BluerB,blueposyT);
+[blueDownLeft(1),blueDownLeft(2)] = myCornerPoints(blueposxX + BluecB, blueposxY + BluerB, blueposxT, bluenegyX+ BluecB,bluenegyY + BluerB,bluenegyT);
+[blueDownRight(1),blueDownRight(2)] = myCornerPoints(bluenegxX + BluecB, bluenegxY + BluerB, bluenegxT, bluenegyX+ BluecB,bluenegyY + BluerB,bluenegyT);
 
 
 %solve for each color
