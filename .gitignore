@@ -4,3 +4,4 @@
 *.asv
 *.html
 */build/*
+*/include/hsv_lookup.h
