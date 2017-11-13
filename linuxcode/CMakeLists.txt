@@ -1,6 +1,7 @@
-cmake_mininum_required (VERSION 3.0)
+cmake_minimum_required (VERSION 3.0)
 project (oltmans_finder)
 
-find_package (Eigen3 3.3 REQUIRED NO_MODULE)
-
-add_executable (example example.)
+find_package (Eigen3 REQUIRED NO_MODULE)
+find_package (OpenCV REQUIRED)
+add_executable (example src/opencv_ex.cpp)
+target_link_libraries (example ${OpenCV_LIBS})

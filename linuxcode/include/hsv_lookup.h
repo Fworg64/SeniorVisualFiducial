@@ -1,4 +1,4 @@
-#ifndef ____HSV_LOOKUP_H__
+#ifndef __HSV_LOOKUP_H__
 #define __HSV_LOOKUP_H__
 
  

@@ -2,6 +2,19 @@
 
 import sys, os, math
 
+minRed = 
+maxRed = 14 
+minGreen = 50
+maxGreen = 100
+minBlue = 100
+maxBlue = 300
+minSat = 9
+minVal = 3
+
+
+
+
+
 def getrgbtrip (inputbyte):
   r = (0xF800 & inputbyte) >> 11
   g = (0x07E0 & inputbyte) >> 5
@@ -69,23 +82,51 @@ def print_list_to_lookup (file_ref,lookup, name):
     if (((x % 16)==0) and x != 0):
       headerfile.write('\n')
 
- 
+def is_red (hsv_trip):
+  h=hsv_trip[0]
+  s=hsv_trip[1]
+  v=hsv_trip[2]
+  global minSat
+  global minRed
+  global maxRed
+  global minVal
+  if (hsv_trip[0] < maxRed and hsv_trip[1] > minRed and s > minSat and v > minVal):
+    return 1
+  else:
+    return 0
+
+def is_green (hsv_trip):
+  h=hsv_trip[0]
+  s=hsv_trip[1]
+  v=hsv_trip[2]
+  global minSat
+  global minGreen
+  global maxGreen
+  global minVal
+  if (hsv_trip[0] < maxGreen and hsv_trip[1] > minGreen and s > minSat and v > minVal):
+    return 1
+  else:
+    return 0
+
+def is_blue (hsv_trip):
+  h=hsv_trip[0]
+  s=hsv_trip[1]
+  v=hsv_trip[2]
+  global minSat
+  global minBlue
+  global maxBlue
+  global minVal
+  if (hsv_trip[0] < maxBlue and hsv_trip[1] > minBlue and s > minSat and v > minVal):
+    return 1
+  else:
+    return 0
 
 
 
 #arguments are min saturation, min_value, red_min, red_max, green_min, green_max, blue_min, blue_max
-minRed = 350
-maxRed = 10
-minGreen = 50
-maxGreen = 100
-minBlue = 100
-maxBlue = 300
-minSat = 10
-minVal = 200
-
 file_name = 'hsv_lookup.h'
 header_guard_name = '__'+ file_name.upper().replace('.','_')+'__' 
-header_guard_start = '#ifndef __' + header_guard_name + '\n'
+header_guard_start = '#ifndef ' + header_guard_name + '\n'
 header_guard_start += '#define ' + header_guard_name + '\n'
 header_guard_end = '#endif'
 
@@ -98,6 +139,9 @@ headerfile.write (header_guard_start)
 rgb_trips = [getrgbtrip(x) for x in range(65536)]
 hsv_trips = [rgb2hsv(x) for x in rgb_trips]
 hsv_packed = [packhsv(x) for x in hsv_trips]
+hsv_red = [is_red(x) for x in hsv_trips]
+hsv_green = [is_green(x) for x in hsv_trips]
+hsv_blue = [is_blue(x) for x in hsv_trips]
 
 
 print_list_to_lookup (headerfile, hsv_packed, 'hsv_lookup')
